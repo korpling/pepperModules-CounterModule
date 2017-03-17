@@ -1,5 +1,6 @@
 package org.corpus_tools.pepperModules_CounterModule;
 
+import java.util.List;
 import org.corpus_tools.pepperModules_CounterModule.CounterModuleManipulator;
 
 import static org.junit.Assert.assertEquals;
@@ -7,6 +8,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.corpus_tools.pepper.testFramework.PepperManipulatorTest;
 import org.corpus_tools.salt.common.SCorpus;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.samples.SampleGenerator;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +61,24 @@ public class CounterModuleManipulatorTest extends PepperManipulatorTest {
 		// starts the Pepper framework and the conversion process
 		start();
 
+                
+                for (SCorpus sCorpus : getFixture().getSaltProject().getCorpusGraphs().get(0).getCorpora()) {
+                        List<SDocument> docs = sCorpus.getGraph().getDocuments();
+                        for (SDocument doc : docs){
+                            // Check meta annotation was generated correctly
+                            int tokCount = doc.getDocumentGraph().getTokens().size();
+                            assertNotNull(doc.getMetaAnnotation("tok_count"));
+                            assertEquals(Integer.toString(tokCount), doc.getMetaAnnotation("tok_count").getValue());
+                            
+                            // Check that first token is annotated with '1'
+                            List<SToken> toks = doc.getDocumentGraph().getSortedTokenByText();
+                            SToken first = toks.get(0);
+                            assertNotNull(first.getAnnotation("default_ns","tok_num"));
+                            assertEquals(first.getAnnotation("default_ns", "tok_num").getValue_STEXT(), "1");
+                            
+                        }
+		}
+                
 	}
 
 	// TODO add further tests for any test cases you can think of and which are
